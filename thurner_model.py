@@ -100,7 +100,7 @@ class Fund:
         """
         TODO
         """
-        return self.shares * p_t + self.cash
+        return max(0, self.shares * p_t + self.cash)
 
     #!!! for learning behaviour see LeBaron2012 !!!
 
@@ -158,14 +158,14 @@ def calculate_excess_demand(xi_t, funds, p_t):
         demand += f.get_demand(p_t)
     return demand - N
         
-def findEquilibrium(xi_t, funds):
+def find_equilibrium(xi_t, funds):
     # The scipy solver wants an univariate function,
     # so we create a temporary demand function 
     # that only depends on p_t, with the other two
     # parameters staying constant
     
-    def current_excess_demand(p_t):
-        return calculate_excess_demand(xi_t, funds, p_t)
+    current_excess_demand = \
+        lambda  p_t : calculate_excess_demand(xi_t, funds, p_t)
     
     return scipy.optimize.brentq(current_excess_demand,
                                  minPrice,
