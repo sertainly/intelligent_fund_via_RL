@@ -2,29 +2,13 @@
 This is an implementation of the model described by Thurner, Farmer & Geanakoplos. (Leverage causes fat tails and clustered volatility, 2012)
 (https://arxiv.org/abs/0908.1555)
 
-Inspiration comes from Luzius Meisser's implementation of the same model (his is for educational purposes, so much better explained)
+Inspiration comes from Luzius Meisser's jupyter notebook of the same model (his is for educational purposes, so much better explained)
 https://github.com/kronrod/sfi-complexity-mooc/blob/master/notebooks/leverage.ipynb
 """
 
-print("\n",10*"########")
-print("Starting Simulation\n")
-
+import scipy
 import numpy as np
 import math
-import time
-import datetime
-
-from utils import printProgressBar
-from testing import calculateLogReturns, calculateAutocorrelation
-
-import matplotlib.pyplot as plt
-import seaborn as sns
-sns.set_style("whitegrid")
-
-# PLOTTING
-outpath = ("./figures/")
-
-start = time.time()
 
 # Setting the global parameters:
 # the perceived fundamental value is V
@@ -163,82 +147,26 @@ def update_price(p_tm1, total_demand):
     """from LeBaron 2006"""
     return p_tm1 + alpha * (total_demand - N)
 
+#from Meisser:
+minPrice = 0.01
+maxPrice = 5
 
-########################################################
-# This section initializes our agents and runs the simulation
-
-# NOISE TRADER 
-roh_nt = 0.99
-sigma_nt = 0.035
-noise_trader = NoiseTrader(roh_nt, sigma_nt, V, N)
-
-nt_spending = [N*V]
-
-# FUNDS
-funds = []
-number_of_funds = 10
-
-for h in range(number_of_funds):
-    # betas range from 5 to 50 (5,10,15,...,50)
-    beta_of_fund = (h+1)*5
-    funds.append(Fund(beta_of_fund))
-
-# SIMULATION
-prices = []
-
-#TODO
-iterations = 10
-
-printProgressBar(0, iterations, prefix='Progress', length=50) 
-
-for i in range(iterations):
-
-    # Noise trader demand 
-    xi_tm1 = nt_spending[-1]
-    xi_t = noise_trader.cash_spending(xi_tm1)
-    nt_spending.append(xi_t)
-
-    # the price is determined like this if there are only nts
-    p_t = xi_t / N
-    prices.append(p_t)
-
-    printProgressBar(i + 1, iterations,
-            prefix='Progress:',
-            length=50)
-
-log_prices = np.log(np.array(prices))
-print("\n")
-print("Average Log Price: {}".format(sum(log_prices)/len(log_prices)))
-
-# Test the fund demand function
-testFund = Fund(50)
-
-prices = []
-demand = []
-for i in range(-99, 100):
-    price = V + i / 100
-    investment = testFund.get_demand(price) * price
-    prices.append(price)
-    demand.append(investment)
+# Rearranged equation 4
+def calculate_excess_demand(xi_t, funds, p_t):
+    demand = xi_t / p_t
+    for f in funds:
+        demand += f.get_demand(p_t)
+    return demand - N
+        
+def findEquilibrium(xi_t, funds):
+    # The scipy solver wants an univariate function,
+    # so we create a temporary demand function 
+    # that only depends on p_t, with the other two
+    # parameters staying constant
     
-plt.xlabel('Price')
-plt.ylabel('Investment')
-plt.axis([0.0, 1.5, 0, 50])
-plt.plot(prices, demand)
-plt.savefig("{}fund_demand.png".format(outpath))
-
-
-# From Meisser's Version:
-returns = calculateLogReturns(prices)
-
-# This should output a slightly negative value. If not, you have been unlucky and should run it again. :)
-print("Autocorrelation: {}".format(calculateAutocorrelation(returns, 1)))
-
-
-plt.figure(figsize=(16,3))
-plt.plot(prices)
-plt.savefig("{}prices.png".format(outpath))
-print()
-print(datetime.datetime.now())
-print("Done")
-
+    def current_excess_demand(p_t):
+        return calculate_excess_demand(xi_t, funds, p_t)
+    
+    return scipy.optimize.brentq(current_excess_demand,
+                                 minPrice,
+                                 maxPrice)
