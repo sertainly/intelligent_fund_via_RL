@@ -71,7 +71,7 @@ def simulate(iterations):
         funds_wealth_t = [] 
     
         for fund in funds:
-            fund.update_fund_holdings(p_t)
+            fund.update_holdings(p_t)
             fund.check_and_make_bankrupt(p_t)
             fund.process_inflows(p_tm1, p_t)
             wealth_fund_t = fund.get_wealth(p_t)

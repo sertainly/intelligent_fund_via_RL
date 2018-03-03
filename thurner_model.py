@@ -133,7 +133,7 @@ class Fund:
     def process_inflows(self, oldprice, newprice):
         pass #used later
 
-    def update_fund_holdings(self, p_t):
+    def update_holdings(self, p_t):
         wealth = self.get_wealth(p_t)
         self.shares = self.get_demand(p_t)
         self.cash = wealth - self.shares * p_t
