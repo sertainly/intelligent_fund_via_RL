@@ -41,7 +41,7 @@ def simulate(iterations):
     
     # Initialize our funds 
     funds = []
-    number_of_funds = 5 
+    number_of_funds = 10
     
     for h in range(number_of_funds):
         # betas range from 5 to 50 (5,10,15,...,50)
@@ -86,11 +86,9 @@ def simulate(iterations):
                 length=50)
 
     prices = prices[1:]
-
     return {'iterations':iterations,
             'prices':prices,
-            'wealth':total_fund_wealth,
-            'num_funds': number_of_funds}
+            'wealth':total_fund_wealth}
 
 
 def plot_prices(result):
@@ -100,7 +98,7 @@ def plot_prices(result):
     plt.xlabel('Iterations')
     plt.ylabel('Price')
     plt.legend(loc='upper left')
-    plt.savefig("{}simulated_prices_{}_funds.png".format(outpath, result['num_funds']))
+    plt.savefig("{}simulated_prices.png".format(outpath))
     plt.close()
 
 # Run the simulation
@@ -111,7 +109,7 @@ plot_prices(result)
 
 # Plot the wealth of all funds
 plt.plot(result['wealth'])
-plt.savefig("{}simulated_wealth_{}_funds.png".format(outpath, result['num_funds']))
+plt.savefig("{}simulated_wealth.png".format(outpath))
 plt.close()
 
 
