@@ -19,6 +19,7 @@ N = 1000
 # alpha is used to adjust the market price
 alpha = 0.1
 
+
 class NoiseTrader:
     """
     Noise trader of the model as described on page 698
@@ -108,24 +109,25 @@ class Fund:
         """
         Oh look, a docstring
         """ 
-        # the mispricing signal m_t is the difference
-        # between the fundamental value V and the price p_t
-        m_t = V - p_t
-        m_critical = self.lambda_max / self.beta        
-        
-        # if the mispricing signal m_t is positive and 
-        # m_critical is not reached, yet
-        if 0 < m_t and m_t < m_critical:
-            return self.beta * m_t * self.get_wealth(p_t) / p_t 
-        # if m_critical is reached, fund leverages 
-        # to the maximum 
-        elif m_t >= m_critical:
-            return self.lambda_max * self.get_wealth(p_t) / p_t
+        if self.is_active():
+            # the mispricing signal m_t is the difference
+            # between the fundamental value V and the price p_t
+            m_t = V - p_t
+            m_critical = self.lambda_max / self.beta        
 
-        # if m_t < 0, ie the mispricing signal, is negative,
-        # demand is zero
-        else:
-            return 0
+            # if the mispricing signal m_t is positive and 
+            # m_critical is not reached, yet
+            if 0 < m_t and m_t < m_critical:
+                return self.beta * m_t * self.get_wealth(p_t) / p_t 
+            # if m_critical is reached, fund leverages 
+            # to the maximum 
+            elif m_t >= m_critical:
+                return self.lambda_max * self.get_wealth(p_t) / p_t
+
+            # if m_t < 0, ie the mispricing signal, is negative,
+            # demand is zero
+            else: return 0
+        else: return 0
 
     def is_active(self):
         return self.activation_delay == 0
@@ -134,9 +136,39 @@ class Fund:
         pass #used later
 
     def update_holdings(self, p_t):
-        wealth = self.get_wealth(p_t)
-        self.shares = self.get_demand(p_t)
-        self.cash = wealth - self.shares * p_t
+        if self.is_active():
+            wealth = self.get_wealth(p_t)
+            self.shares = self.get_demand(p_t)
+            self.cash = wealth - self.shares * p_t
+
+        
+# DynamicFund extends Fund by adding inflow/outflow dynamics (by Meisser)
+class DynamicFund(Fund):
+    
+    benchmark_performance = 0.005 # r^b
+    sensitivity = 0.10 # b, original paper uses 0.15, but 0.10 looks more interesting to me
+        
+    def __init__(self, aggressiveness):
+        super(DynamicFund, self).__init__(aggressiveness)
+        self.performance = 0.0
+        self.previous_wealth = self.initial_wealth
+        self.previous_investment = 0.0
+        
+    def update_performance(self, oldprice, newprice, wealth):
+        ret = (newprice/oldprice - 1)*self.previous_investment/self.previous_wealth
+        self.performance = 0.9 * self.performance + 0.1 * ret # equation 5
+        # remember values for next round
+        self.previous_investment = self.shares * newprice
+        self.previous_wealth = wealth
+        return self.performance
+    
+    def process_inflows(self, oldprice, newprice):
+        if self.is_active():
+            wealth = self.get_wealth(newprice)
+            perf = self.update_performance(oldprice, newprice, wealth)
+            inflow = self.sensitivity*(perf - self.benchmark_performance)*wealth
+            self.cash += max(inflow, -wealth)        
+        
 ########################################################
 # Market clearing mechanism
 
