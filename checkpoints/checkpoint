@@ -1,2 +1,2 @@
-model_checkpoint_path: "changed_a_5000ts_10e-ep9"
-all_model_checkpoint_paths: "changed_a_5000ts_10e-ep9"
+model_checkpoint_path: "more_episodes_5000ts_30e-ep29"
+all_model_checkpoint_paths: "more_episodes_5000ts_30e-ep29"

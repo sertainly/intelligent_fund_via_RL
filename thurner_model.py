@@ -145,7 +145,7 @@ class Fund:
 # DynamicFund extends Fund by adding inflow/outflow dynamics (by Meisser)
 class DynamicFund(Fund):
     
-    a = 0.2
+    a = 0.1
     benchmark_performance = 0.005 # r^b
     sensitivity = 0.10 # b, original paper uses 0.15, but 0.10 looks more interesting to me
         
