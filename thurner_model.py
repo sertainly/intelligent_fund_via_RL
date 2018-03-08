@@ -145,6 +145,7 @@ class Fund:
 # DynamicFund extends Fund by adding inflow/outflow dynamics (by Meisser)
 class DynamicFund(Fund):
     
+    a = 0.2
     benchmark_performance = 0.005 # r^b
     sensitivity = 0.10 # b, original paper uses 0.15, but 0.10 looks more interesting to me
         
@@ -153,10 +154,11 @@ class DynamicFund(Fund):
         self.performance = 0.0
         self.previous_wealth = self.initial_wealth
         self.previous_investment = 0.0
+        self.ret = 0.0
         
     def update_performance(self, oldprice, newprice, wealth):
-        ret = (newprice/oldprice - 1)*self.previous_investment/self.previous_wealth
-        self.performance = 0.9 * self.performance + 0.1 * ret # equation 5
+        self.ret = (newprice/oldprice - 1)*self.previous_investment/self.previous_wealth
+        self.performance = (1-self.a) * self.performance + self.a * self.ret # equation 5
         # remember values for next round
         self.previous_investment = self.shares * newprice
         self.previous_wealth = wealth
