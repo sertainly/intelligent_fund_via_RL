@@ -150,3 +150,8 @@ def provoke_margin_call():
 #
 #print("\nDone")
 
+def main():
+    pass
+
+if __name__ == '__main__':
+    main()

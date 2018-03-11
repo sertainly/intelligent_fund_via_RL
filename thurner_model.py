@@ -204,3 +204,8 @@ def find_equilibrium(xi_t, funds):
     return scipy.optimize.brentq(current_excess_demand,
                                  minPrice,
                                  maxPrice)
+def main():
+    pass
+
+if __name__ == '__main__':
+    main()
