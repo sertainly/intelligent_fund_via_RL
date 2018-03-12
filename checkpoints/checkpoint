@@ -1,2 +1,2 @@
-model_checkpoint_path: "V_in_state-ep29"
-all_model_checkpoint_paths: "V_in_state-ep29"
+model_checkpoint_path: "fund_learns_leverage-ep29"
+all_model_checkpoint_paths: "fund_learns_leverage-ep29"
