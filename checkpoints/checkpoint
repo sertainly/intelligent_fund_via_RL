@@ -1,2 +1,2 @@
-model_checkpoint_path: "long_learning-ep0"
-all_model_checkpoint_paths: "long_learning-ep0"
+model_checkpoint_path: "smart-ep19"
+all_model_checkpoint_paths: "smart-ep19"

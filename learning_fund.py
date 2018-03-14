@@ -414,10 +414,9 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes, num_times
         funds_wealth_all_episodes.append(funds_wealth)
     
         # Save the variables to disk.
-        if i_episode % 19 == 0:
-            checkpoint = "./checkpoints/{}-ep{}".format(experiment_name,i_episode)
-            save_path = saver.save(sess,checkpoint)         
-            print("\nModel saved in path: {}\n".format(save_path))
+        checkpoint = "./checkpoints/{}-ep{}".format(experiment_name,i_episode)
+        save_path = saver.save(sess,checkpoint)         
+        print("\nModel saved in path: {}\n".format(save_path))
     
     return stats, funds_wealth_all_episodes, learning_fund_stats
 

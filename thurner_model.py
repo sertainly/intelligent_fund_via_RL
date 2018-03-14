@@ -178,7 +178,7 @@ class DynamicFund(Fund):
 
 #from Meisser:
 minPrice = 0.01
-maxPrice = 10 
+maxPrice = 5 
 
 # Rearranged equation 4
 def calculate_excess_demand(xi_t, funds, p_t):
@@ -192,13 +192,14 @@ def find_equilibrium(xi_t, funds):
     # so we create a temporary demand function 
     # that only depends on p_t, with the other two
     # parameters staying constant
+    current_excess_demand = lambda  p_t : calculate_excess_demand(xi_t, funds, p_t)
     
-    current_excess_demand = \
-        lambda  p_t : calculate_excess_demand(xi_t, funds, p_t)
-    
-    return scipy.optimize.brentq(current_excess_demand,
-                                 minPrice,
-                                 maxPrice)
+    try:
+        price = scipy.optimize.brentq(current_excess_demand, minPrice, maxPrice)
+    except:
+        price = V 
+    return price
+
 def main():
     pass
 
