@@ -403,19 +403,10 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes, num_times
                     t, i_episode + 1, num_episodes,
                     stats.episode_rewards[i_episode - 1]), end="")
             
-            #if t%500 == 0:
-            #    print("P_t: ", env.p_t)
-            #    print("Demand: ", demand)
-            #    print("Shares:", learning_fund.shares)
-            #    print("Reward:", learning_fund.performance, "\n")
-            #    print(funds[5].get_demand(env.p_t))
-            #    print(funds[5].shares)
-            #    print(funds[5].performance)
-            #    print("")
                         
             # env.done is True if one fund increases its wealth 50-fold
-            if env.done:
-                break
+            #if env.done:
+            #    break
             
             state = next_state
 
@@ -441,7 +432,7 @@ print(datetime.datetime.now().time(), "\n")
 parser = argparse.ArgumentParser()
 parser.add_argument('exp_name', type=str)
 parser.add_argument('--episodes', '-ep', type=int)
-parser.add_argument('--timesteps', 'ts', type=int, default=5000)
+parser.add_argument('--timesteps', '-ts', type=int, default=5000)
 args = parser.parse_args()
 
 experiment_name = args.exp_name 

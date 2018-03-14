@@ -1,2 +1,2 @@
-model_checkpoint_path: "short-ep0"
-all_model_checkpoint_paths: "short-ep0"
+model_checkpoint_path: "long_learning-ep0"
+all_model_checkpoint_paths: "long_learning-ep0"
