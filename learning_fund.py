@@ -225,12 +225,12 @@ class PolicyEstimator():
             self.sigma = tf.nn.softplus(self.sigma) + 1e-5
             self.normal_dist = tf.contrib.distributions.Normal(self.mu,
                                                                self.sigma)
-            self.leverage = self.normal_dist._sample_n(1)
+            leverage = self.normal_dist._sample_n(1)
             
             # clip the leverage, maximum leverage is given by:
             max_leverage = learning_fund.lambda_max 
                 
-            self.leverage = tf.clip_by_value(self.leverage, 0, max_leverage)
+            self.leverage = tf.clip_by_value(leverage, 0, max_leverage)
 
             # Loss and train op
             self.loss = -self.normal_dist.log_prob(self.leverage) * self.target
@@ -423,7 +423,7 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes, num_times
         funds_wealth_all_episodes.append(funds_wealth)
     
         # Save the variables to disk.
-        if episode_i % 19 == 0:
+        if i_episode % 19 == 0:
             checkpoint = "./checkpoints/{}-ep{}".format(experiment_name,i_episode)
             save_path = saver.save(sess,checkpoint)         
             print("\nModel saved in path: {}\n".format(save_path))
@@ -440,7 +440,8 @@ print(datetime.datetime.now().time(), "\n")
 # Before running, always set experiment name
 parser = argparse.ArgumentParser()
 parser.add_argument('exp_name', type=str)
-parser.add_argument('--episodes', '-ep', type=int, default=30)
+parser.add_argument('--episodes', '-ep', type=int)
+parser.add_argument('--timesteps', 'ts', type=int, default=5000)
 args = parser.parse_args()
 
 experiment_name = args.exp_name 
@@ -511,7 +512,7 @@ print("\nSaved as %s" %filename)
 plt.title("Cumulative reward per episode")
 plt.plot(stats.episode_rewards);
 plt.savefig("./figures/{}_episoderewards.png".format(experiment_name))
-
+plt.close()
 
 # In[17]:
 
