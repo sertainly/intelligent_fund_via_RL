@@ -1,2 +1,2 @@
-model_checkpoint_path: "smart-ep19"
-all_model_checkpoint_paths: "smart-ep19"
+model_checkpoint_path: "smart_2-ep29"
+all_model_checkpoint_paths: "smart_2-ep29"
