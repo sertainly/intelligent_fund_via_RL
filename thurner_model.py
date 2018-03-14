@@ -174,16 +174,11 @@ class DynamicFund(Fund):
 ########################################################
 # Market clearing mechanism
 
-# see LeBaron 2006 for possible price determination machanisms
 # Thurner et al. numerically clear the market each period
-# two options are: Day & Huang 1990, or Farmer et al. 2005
-def update_price(p_tm1, total_demand):
-    """from LeBaron 2006"""
-    return p_tm1 + alpha * (total_demand - N)
 
 #from Meisser:
 minPrice = 0.01
-maxPrice = 5
+maxPrice = 10 
 
 # Rearranged equation 4
 def calculate_excess_demand(xi_t, funds, p_t):
