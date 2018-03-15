@@ -3,8 +3,7 @@
 
 # In[1]:
 
-import sys, os
-import itertools
+import os
 import collections
 import pickle
 
@@ -14,17 +13,11 @@ import numpy as np
 import sklearn.pipeline
 import sklearn.preprocessing
 from sklearn.kernel_approximation import RBFSampler
-import scipy
-from scipy import optimize
 
 import time
 import datetime
 import argparse
 import matplotlib.pyplot as plt
-#import seaborn as sns
-#sns.set_style("whitegrid")
-#current_palette = sns.color_palette()
-
 
 # In[2]:
 
@@ -93,12 +86,10 @@ class Env:
 
 # In[5]:
 
-
 env = Env()
 
 
 # In[6]:
-
 
 # Create examples for observations to train the featurizer
 tracked_fund = DynamicFund(25)
