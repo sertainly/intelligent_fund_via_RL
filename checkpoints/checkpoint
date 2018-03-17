@@ -1,2 +1,2 @@
-model_checkpoint_path: "wealth_reward-ep29"
-all_model_checkpoint_paths: "wealth_reward-ep29"
+model_checkpoint_path: "return_is_reward-ep19"
+all_model_checkpoint_paths: "return_is_reward-ep19"
