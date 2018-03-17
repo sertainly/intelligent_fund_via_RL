@@ -103,8 +103,6 @@ class Fund:
         """
         return max(0, self.shares * p_t + self.cash)
 
-    #!!! for learning behaviour see LeBaron2012 !!!
-
     def get_demand(self, p_t):
         """
         Oh look, a docstring
