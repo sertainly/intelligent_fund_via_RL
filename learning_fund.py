@@ -27,7 +27,6 @@ import plotting
 
 # In[4]:
 
-
 class Env:
     """
     Docstring
@@ -360,7 +359,7 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes, num_times
             # we assume one learning fund for the moment
             next_state = learning_fund.get_state(env.p_t) 
 
-            reward = learning_fund.performance
+            reward = learning_fund.get_wealth(env.p_t)
             
             # Keep track of the transition
             episode.append(Transition(state=state, action=demand,
