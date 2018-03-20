@@ -374,7 +374,7 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes,
 
             # high negative reward if learning_fund goes bankrupt
             if learning_fund.activation_delay == 100:            
-               reward = -10
+               reward = -100
  
             # Keep track of the transition
             episode.append(Transition(state=state, action=demand,
