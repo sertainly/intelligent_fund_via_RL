@@ -1,8 +1,10 @@
 """
-This is an implementation of the model described by Thurner, Farmer & Geanakoplos. (Leverage causes fat tails and clustered volatility, 2012)
+This is an implementation of the model described by Thurner, Farmer & Geanakoplos.
+Leverage causes fat tails and clustered volatility, 2012
 (https://arxiv.org/abs/0908.1555)
 
-Inspiration comes from Luzius Meisser's jupyter notebook of the same model (his is for educational purposes, so much better explained)
+Inspiration comes from Luzius Meisser's jupyter notebook of the same model
+(his is for educational purposes, so much better explained)
 https://github.com/kronrod/sfi-complexity-mooc/blob/master/notebooks/leverage.ipynb
 """
 

@@ -1,7 +1,9 @@
 
 # coding: utf-8
 
-# In[1]:
+"""
+
+"""
 
 import os
 import collections
@@ -176,12 +178,19 @@ class LearningFund(DynamicFund):
             A number for the learning_fund's demand, estimated by the
             policy_estimator, based on the current state
         """ 
-        state = self.get_state(p_t)
-        
-        self.leverage = policy_estimator.predict(state)
-        
-        return self.leverage * self.get_wealth(p_t) / p_t 
+        if self.is_active():
 
+            state = self.get_state(p_t)
+            
+            self.leverage = policy_estimator.predict(state)
+
+            if self.leverage == 0:
+                return self.get_wealth(p_t) / p_t 
+
+            else: 
+                return self.leverage * self.get_wealth(p_t) / p_t 
+        else:
+            return 0
 
 # In[10]:
 
@@ -224,7 +233,7 @@ class PolicyEstimator():
 
             # Loss and train op
             self.loss = -self.normal_dist.log_prob(self.leverage) * self.target
-            # Add cross entropy cost to encourage exploration
+            # Add cross entropy cost to encourage exploration (from A3C paper)
             self.loss -= 1e-1 * self.normal_dist.entropy()
             
             self.optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
@@ -289,7 +298,8 @@ class ValueEstimator():
 # In[12]:
 
 
-def actor_critic(env, policy_estimator, value_estimator, num_episodes, num_timesteps=5000, discount_factor=1.0):
+def actor_critic(env, policy_estimator, value_estimator, num_episodes,
+    num_timesteps=5000, discount_factor=1.0):
     """
     Actor Critic Algorithm. Optimizes the policy 
     function approximator using policy gradient.
@@ -343,7 +353,8 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes, num_times
         # One step in the environment
         for t in range(num_timesteps):
             
-            # get the demand (which is our action) of the learning fund
+            # get the demand of the learning fund
+            # (via getting leverage from policy_estimator)
             demand = learning_fund.get_demand(env.p_t) 
             
             state = learning_fund.get_state(env.p_t)
@@ -358,7 +369,7 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes, num_times
             
             # we assume one learning fund for the moment
             next_state = learning_fund.get_state(env.p_t) 
-
+            
             reward = learning_fund.ret
             
             # Keep track of the transition
