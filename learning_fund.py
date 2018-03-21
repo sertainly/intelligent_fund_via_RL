@@ -152,8 +152,7 @@ class LearningFund(DynamicFund):
     """
     
     def __init__(self):
-        # The learning fund does not need a beta, but learns how to leverage
-        self.leverage = 0
+        # The learning fund does not need a beta
         
         self.cash = self.initial_wealth
         self.shares = 0 
@@ -182,13 +181,10 @@ class LearningFund(DynamicFund):
 
             state = self.get_state(p_t)
             
-            self.leverage = policy_estimator.predict(state)
+            demand = policy_estimator.predict(state)
 
-            if self.leverage == 0:
-                return self.get_wealth(p_t) / p_t 
-
-            else: 
-                return self.leverage * self.get_wealth(p_t) / p_t 
+            return demand
+        
         else:
             return 0
 
@@ -224,15 +220,15 @@ class PolicyEstimator():
             self.sigma = tf.nn.softplus(self.sigma) + 1e-5
             self.normal_dist = tf.contrib.distributions.Normal(self.mu,
                                                                self.sigma)
-            leverage = self.normal_dist._sample_n(1)
+            sampled_demand = self.normal_dist._sample_n(1)
             
-            # clip the leverage, maximum leverage is given by:
-            max_leverage = learning_fund.lambda_max 
+            # clip the demand, maximum demand is given by:
+            max_demand = learning_fund.lambda_max 
                 
-            self.leverage = tf.clip_by_value(leverage, 0, max_leverage)
+            self.demand = tf.clip_by_value(sampled_demand, 0, max_demand)
 
             # Loss and train op
-            self.loss = -self.normal_dist.log_prob(self.leverage) * self.target
+            self.loss = -self.normal_dist.log_prob(self.demand) * self.target
             # Add cross entropy cost to encourage exploration (from A3C paper)
             self.loss -= 1e-1 * self.normal_dist.entropy()
             
@@ -243,14 +239,14 @@ class PolicyEstimator():
     def predict(self, state, sess=None):
         sess = sess or tf.get_default_session()
         state = featurize_state(state)
-        return sess.run(self.leverage, { self.state: state })
+        return sess.run(self.demand, { self.state: state })
 
-    def update(self, state, target, leverage, sess=None):
+    def update(self, state, target, demand, sess=None):
         sess = sess or tf.get_default_session()
         state = featurize_state(state)
         feed_dict = { self.state: state,
                       self.target: target,
-                      self.leverage: leverage  }
+                      self.demand: demand  }
         _, loss = sess.run([self.train_op, self.loss], feed_dict)
         return loss
 
@@ -354,7 +350,7 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes,
         for t in range(num_timesteps):
             
             # get the demand of the learning fund
-            # (via getting leverage from policy_estimator)
+            # (via getting demand from policy_estimator)
             demand = learning_fund.get_demand(env.p_t) 
             
             state = learning_fund.get_state(env.p_t)
@@ -367,35 +363,37 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes,
             funds_wealth.append(current_wealth)
             prices.append(env.p_t)
             
-            # we assume one learning fund for the moment
-            next_state = learning_fund.get_state(env.p_t) 
-            
-            reward = learning_fund.ret
+            # only update learning if learning fund is not bankrupt
+            if learning_fund.is_active():
+                # we assume one learning fund for the moment
+                next_state = learning_fund.get_state(env.p_t) 
+                
+                reward = learning_fund.ret
 
-            # experiment: high negative reward if learning_fund goes bankrupt
-            #if learning_fund.activation_delay == 100:            
-            #   reward = -100
+                # experiment: high negative reward if learning_fund goes bankrupt
+                #if learning_fund.activation_delay == 100:            
+                #   reward = -100
  
-            # Keep track of the transition
-            episode.append(Transition(state=state, action=demand,
-                                      reward=reward, next_state=next_state,
-                                      done=env.done))
-            
-            # Update statistics
-            stats.episode_rewards[i_episode] += reward
-            stats.episode_lengths[i_episode] = t
-            
-            # Calculate TD Target
-            value_next = value_estimator.predict(next_state)
-            td_target = reward + discount_factor * value_next
-            td_error = td_target - value_estimator.predict(state)
-            
-            # Update the value estimator
-            value_estimator.update(state, td_target)
-            
-            # Update the policy estimator
-            # using the td error as our advantage estimate
-            policy_estimator.update(state, td_error, learning_fund.leverage)
+                # Keep track of the transition
+                episode.append(Transition(state=state, action=demand,
+                                          reward=reward, next_state=next_state,
+                                          done=env.done))
+                
+                # Update statistics
+                stats.episode_rewards[i_episode] += reward
+                stats.episode_lengths[i_episode] = t
+                
+                # Calculate TD Target
+                value_next = value_estimator.predict(next_state)
+                td_target = reward + discount_factor * value_next
+                td_error = td_target - value_estimator.predict(state)
+                
+                # Update the value estimator
+                value_estimator.update(state, td_target)
+                
+                # Update the policy estimator
+                # using the td error as our advantage estimate
+                policy_estimator.update(state, td_error, demand)
             
             learning_fund_stats[i_episode][t] = np.array([env.p_t,
                                                           demand,
