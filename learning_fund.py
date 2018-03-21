@@ -223,8 +223,8 @@ class PolicyEstimator():
             sampled_demand = self.normal_dist._sample_n(1)
             
             # clip the demand, maximum demand is given by:
-            max_demand = learning_fund.lambda_max 
-                
+            maxim = learning_fund.lambda_max * learning_fund.get_wealth(env.p_t)
+            max_demand = maxim / env.p_t 
             self.demand = tf.clip_by_value(sampled_demand, 0, max_demand)
 
             # Loss and train op
