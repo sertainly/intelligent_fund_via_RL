@@ -1,2 +1,2 @@
-model_checkpoint_path: "record_return-ep29"
-all_model_checkpoint_paths: "record_return-ep29"
+model_checkpoint_path: "test-ep0"
+all_model_checkpoint_paths: "test-ep0"
