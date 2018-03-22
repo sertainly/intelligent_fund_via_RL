@@ -436,14 +436,14 @@ print(datetime.datetime.now().time(), "\n")
 # Before running, always set experiment name
 parser = argparse.ArgumentParser()
 parser.add_argument('exp_name', type=str)
-parser.add_argument('--episodes', '-ep', type=int)
+parser.add_argument('--episodes', '-ep', type=int, default=30)
 parser.add_argument('--timesteps', '-ts', type=int, default=5000)
 args = parser.parse_args()
 
 experiment_name = args.exp_name 
 
 episodes = args.episodes 
-timesteps = 5000 #max per episode
+timesteps = args.timesteps #max per episode
 
 start_time = time.time()
 
