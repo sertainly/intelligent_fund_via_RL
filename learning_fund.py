@@ -186,7 +186,7 @@ class LearningFund(DynamicFund):
             return demand
         
         else:
-            return 0
+            return np.array([1])
 
 # In[10]:
 
@@ -223,8 +223,9 @@ class PolicyEstimator():
             sampled_demand = self.normal_dist._sample_n(1)
             
             # clip the demand, maximum demand is given by:
-            maxim = learning_fund.lambda_max * learning_fund.get_wealth(env.p_t)
-            max_demand = maxim / env.p_t 
+            max_demand = learning_fund.lambda_max * \
+                            learning_fund.get_wealth(env.p_t) / env.p_t 
+            
             self.demand = tf.clip_by_value(sampled_demand, 0, max_demand)
 
             # Loss and train op
