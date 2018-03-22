@@ -221,12 +221,8 @@ class PolicyEstimator():
             self.normal_dist = tf.contrib.distributions.Normal(self.mu,
                                                                self.sigma)
             sampled_demand = self.normal_dist._sample_n(1)
-            
-            # clip the demand, maximum demand is given by:
-            max_demand = learning_fund.lambda_max * \
-                            learning_fund.get_wealth(env.p_t) / env.p_t 
-            
-            self.demand = tf.clip_by_value(sampled_demand, 0, max_demand)
+                        
+            self.demand = tf.clip_by_value(sampled_demand, 0, 1000) 
 
             # Loss and train op
             self.loss = -self.normal_dist.log_prob(self.demand) * self.target
@@ -352,7 +348,10 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes,
             
             # get the demand of the learning fund
             # (via getting demand from policy_estimator)
-            demand = learning_fund.get_demand(env.p_t) 
+            max_demand = learning_fund.lambda_max * \
+                            learning_fund.get_wealth(env.p_t) / env.p_t 
+
+            demand = min(learning_fund.get_demand(env.p_t), max_demand) 
             
             state = learning_fund.get_state(env.p_t)
             
