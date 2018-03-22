@@ -1,2 +1,2 @@
-model_checkpoint_path: "learn_demand-ep29"
-all_model_checkpoint_paths: "learn_demand-ep29"
+model_checkpoint_path: "new_max_demand-ep29"
+all_model_checkpoint_paths: "new_max_demand-ep29"

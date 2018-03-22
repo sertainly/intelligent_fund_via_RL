@@ -186,10 +186,10 @@ class LearningFund(DynamicFund):
             max_demand = learning_fund.lambda_max * \
                             learning_fund.get_wealth(env.p_t) / env.p_t 
 
-            return min(demand, max_demand)
+            return min(demand, np.array([max_demand]))
         
         else:
-            return np.array([0])
+            return np.array([0.]) 
 
 # In[10]:
 
@@ -224,8 +224,9 @@ class PolicyEstimator():
             self.normal_dist = tf.contrib.distributions.Normal(self.mu,
                                                                self.sigma)
             sampled_demand = self.normal_dist._sample_n(1)
-                        
-            self.demand = tf.clip_by_value(sampled_demand, 0, 1000) 
+            upper_clip = np.float64(1000)
+            lower_clip = np.float64(0)
+            self.demand = tf.clip_by_value(sampled_demand, lower_clip, upper_clip) 
 
             # Loss and train op
             self.loss = -self.normal_dist.log_prob(self.demand) * self.target
