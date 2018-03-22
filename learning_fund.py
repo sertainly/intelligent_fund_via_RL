@@ -324,7 +324,7 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes,
     
     funds_wealth_all_episodes = []
     
-    learning_fund_stats = np.zeros((num_episodes, num_timesteps, 5))
+    learning_fund_stats = np.zeros((num_episodes, num_timesteps, 6))
     
     for i_episode in range(num_episodes):
         
@@ -401,7 +401,8 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes,
                                                           demand,
                                                           learning_fund.get_wealth(env.p_t),
                                                           learning_fund.cash,
-                                                          learning_fund.shares])
+                                                          learning_fund.shares,
+                                                          learning_fund.ret])
             
             # Print out which step we're on, useful for debugging.
             print("\rt: {} @ Episode {}/{} ({})".format(
