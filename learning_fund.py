@@ -182,11 +182,14 @@ class LearningFund(DynamicFund):
             state = self.get_state(p_t)
             
             demand = policy_estimator.predict(state)
+            
+            max_demand = learning_fund.lambda_max * \
+                            learning_fund.get_wealth(env.p_t) / env.p_t 
 
-            return demand
+            return min(demand, max_demand)
         
         else:
-            return np.array([1])
+            return np.array([0])
 
 # In[10]:
 
@@ -348,10 +351,8 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes,
             
             # get the demand of the learning fund
             # (via getting demand from policy_estimator)
-            max_demand = learning_fund.lambda_max * \
-                            learning_fund.get_wealth(env.p_t) / env.p_t 
-
-            demand = min(learning_fund.get_demand(env.p_t), max_demand) 
+            
+            demand = learning_fund.get_demand(env.p_t) 
             
             state = learning_fund.get_state(env.p_t)
             
