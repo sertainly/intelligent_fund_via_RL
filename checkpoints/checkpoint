@@ -1,2 +1,2 @@
-model_checkpoint_path: "test-ep0"
-all_model_checkpoint_paths: "test-ep0"
+model_checkpoint_path: "learn_longer-ep99"
+all_model_checkpoint_paths: "learn_longer-ep99"

@@ -68,7 +68,7 @@ class Env:
     
         # 2. update the holdings of all the funds (wealth, shares and cash)
         current_wealth = []
-        
+        current_return = [] 
         for fund in funds:
             fund.update_holdings(self.p_t)
             fund.check_and_make_bankrupt(self.p_t)
@@ -77,12 +77,12 @@ class Env:
             
             new_wealth_of_fund = fund.get_wealth(self.p_t)
             current_wealth.append(new_wealth_of_fund)
-            
+            current_return.append(fund.ret) 
             # set done to True if one fund increases its wealth 50-fold
             if new_wealth_of_fund > 50*fund.initial_wealth:
                 self.done = True
                 
-        return current_wealth
+        return current_wealth, current_return
 
 
 # In[5]:
@@ -100,7 +100,7 @@ other_funds.append(tracked_fund)
 
 states = np.zeros((10000,2))
 for i in range(10000):
-    current_wealth = env.step(other_funds)
+    current_wealth,_ = env.step(other_funds)
     states[i] = np.array([env.p_t,
                           tracked_fund.get_wealth(env.p_t)
                          ])
@@ -323,7 +323,7 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes,
                                                        "done"])
     
     funds_wealth_all_episodes = []
-    
+    funds_return_all_ep = []    
     learning_fund_stats = np.zeros((num_episodes, num_timesteps, 6))
     
     for i_episode in range(num_episodes):
@@ -331,7 +331,7 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes,
         # Reset everything
         prices = []
         funds_wealth = []
-
+        funds_returns = []
         # Create our learning_fund
         learning_fund = LearningFund()
         
@@ -359,10 +359,11 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes,
             
             # Simulate a step in the environment,
             # record the wealth of all funds in current_wealth
-            current_wealth = env.step(funds)
+            current_wealth, current_returns = env.step(funds)
             
             # record the wealth of all funds and the current price
             funds_wealth.append(current_wealth)
+            funds_returns.append(current_returns)
             prices.append(env.p_t)
             
             # only update learning if learning fund is not bankrupt
@@ -418,13 +419,13 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes,
 
         # After each episode, record the wealth of all funds
         funds_wealth_all_episodes.append(funds_wealth)
-    
+        funds_return_all_ep.append(funds_returns) 
         # Save the variables to disk.
         checkpoint = "./checkpoints/{}-ep{}".format(experiment_name,i_episode)
         save_path = saver.save(sess,checkpoint)         
         print("\nModel saved in path: {}\n".format(save_path))
     
-    return stats, funds_wealth_all_episodes, learning_fund_stats
+    return stats, funds_wealth_all_episodes, funds_return_all_ep, learning_fund_stats
 
 
 # In[13]:
@@ -474,7 +475,7 @@ with tf.Session() as sess:
     # Due to randomness in the policy, the number of episodes you need varies
     # TODO: Sometimes the algorithm gets stuck, I'm not sure what exactly is
     # happening there.
-    stats,funds_wealth_all_episodes,learnin_fund_stats = actor_critic(env, policy_estimator,
+    stats,funds_wealth_all_episodes,funds_return_all_ep,learnin_fund_stats = actor_critic(env, policy_estimator,
                                                                       value_estimator,num_episodes=episodes,
                                                                       num_timesteps=timesteps, discount_factor=0.95)
     
@@ -493,7 +494,7 @@ path = "./data/"
 filename = "{}{}_data".format(path, experiment_name)
 
 with open(filename, 'wb') as f:
-    pickle.dump([stats.episode_rewards, funds_wealth_all_episodes, learnin_fund_stats], f)
+    pickle.dump([stats.episode_rewards, funds_wealth_all_episodes,funds_return_all_ep, learnin_fund_stats], f)
 
     
 print("\nSaved as %s" %filename)
