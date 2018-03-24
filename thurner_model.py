@@ -157,7 +157,7 @@ class DynamicFund(Fund):
         self.ret = 0.0
         
     def update_performance(self, oldprice, newprice, wealth):
-        self.ret = (newprice/oldprice - 1)*self.previous_investment/self.previous_wealth
+        self.ret = (newprice-oldprice)*self.previous_investment/self.previous_wealth
         self.performance = (1-self.a) * self.performance + self.a * self.ret # equation 5
         # remember values for next round
         self.previous_investment = self.shares * newprice
