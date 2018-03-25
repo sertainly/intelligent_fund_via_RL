@@ -183,8 +183,7 @@ class LearningFund(DynamicFund):
             
             demand = policy_estimator.predict(state)
             
-            max_demand = learning_fund.lambda_max * \
-                            learning_fund.get_wealth(env.p_t) / env.p_t 
+            max_demand = self.lambda_max * self.get_wealth(p_t) / p_t 
 
             return min(demand, np.array([max_demand]))
         
