@@ -429,7 +429,6 @@ def actor_critic(env, actor, critic, num_episodes,
 
 # In[13]:
 
-
 print("\n########## Starting Learning Process ##########\n")
 print(datetime.datetime.now().time(), "\n")
 
@@ -471,9 +470,7 @@ saver = tf.train.Saver(max_to_keep=1)
 
 with tf.Session() as sess:
     sess.run(init_op)
-    # Due to randomness in the policy, the number of episodes you need varies
-    # TODO: Sometimes the algorithm gets stuck, I'm not sure what exactly is
-    # happening there.
+    
     stats,funds_wealth_all_episodes,funds_return_all_ep,learnin_fund_stats = actor_critic(env, actor,
                                                                       critic,num_episodes=episodes,
                                                                       num_timesteps=timesteps, discount_factor=0.95)
@@ -483,7 +480,6 @@ print("\nDuration: {} min".format((time.time() - start_time)/60))
 
 
 # In[15]:
-
 
 # save data from experiment
 os.system('mkdir data')
@@ -503,7 +499,6 @@ print("\nSaved as %s" %filename)
 
 
 # In[16]:
-
 
 plt.title("Cumulative reward per episode")
 plt.plot(stats.episode_rewards);
