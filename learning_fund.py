@@ -175,13 +175,13 @@ class LearningFund(DynamicFund):
             p_t : current_price in the environment
         Returns:
             A number for the learning_fund's demand, estimated by the
-            policy_estimator, based on the current state
+            actor, based on the current state
         """ 
         if self.is_active():
 
             state = self.get_state(p_t)
             
-            demand = policy_estimator.predict(state)
+            demand = actor.predict(state)
             
             max_demand = self.lambda_max * self.get_wealth(p_t) / p_t 
 
@@ -198,7 +198,7 @@ class PolicyEstimator():
     Policy Function approximator. Also called Actor.
     """
     
-    def __init__(self, learning_rate=0.01, scope="policy_estimator"):
+    def __init__(self, learning_rate=0.01, scope="actor"):
         with tf.variable_scope(scope):
             self.state = tf.placeholder(tf.float32, [400], "state")
             self.target = tf.placeholder(dtype=tf.float32, name="target")
@@ -259,7 +259,7 @@ class ValueEstimator():
     Value Function approximator. Also called Critic.
     """
     
-    def __init__(self, learning_rate=0.1, scope="value_estimator"):
+    def __init__(self, learning_rate=0.1, scope="critic"):
         with tf.variable_scope(scope):
             self.state = tf.placeholder(tf.float32, [400], "state")
             self.target = tf.placeholder(dtype=tf.float32, name="target")
@@ -294,7 +294,7 @@ class ValueEstimator():
 # In[12]:
 
 
-def actor_critic(env, policy_estimator, value_estimator, num_episodes,
+def actor_critic(env, actor, critic, num_episodes,
     num_timesteps=5000, discount_factor=1.0):
     """
     Actor Critic Algorithm. Optimizes the policy 
@@ -302,8 +302,8 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes,
     
     Args:
         env: My self created environment, specified above.
-        policy_estimator: Policy Function to be optimized 
-        value_estimator: Value function approximator, used as a critic
+        actor: Policy Function to be optimized 
+        critic: Value function approximator 
         num_episodes: Number of episodes to run for
         discount_factor: Time-discount factor
     
@@ -350,7 +350,7 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes,
         for t in range(num_timesteps):
             
             # get the demand of the learning fund
-            # (via getting demand from policy_estimator)
+            # (via getting demand from actor)
             
             demand = learning_fund.get_demand(env.p_t) 
             
@@ -386,16 +386,16 @@ def actor_critic(env, policy_estimator, value_estimator, num_episodes,
                 stats.episode_lengths[i_episode] = t
                 
                 # Calculate TD Target
-                value_next = value_estimator.predict(next_state)
+                value_next = critic.predict(next_state)
                 td_target = reward + discount_factor * value_next
-                td_error = td_target - value_estimator.predict(state)
+                td_error = td_target - critic.predict(state)
                 
                 # Update the value estimator
-                value_estimator.update(state, td_target)
+                critic.update(state, td_target)
                 
                 # Update the policy estimator
                 # using the td error as our advantage estimate
-                policy_estimator.update(state, td_error, demand)
+                actor.update(state, td_error, demand)
             
             learning_fund_stats[i_episode][t] = np.array([env.p_t,
                                                           demand,
@@ -460,8 +460,8 @@ learning_fund = LearningFund()
 # This works
 tf.reset_default_graph()
 
-policy_estimator = PolicyEstimator(learning_rate=0.001)
-value_estimator = ValueEstimator(learning_rate=0.1)
+actor = PolicyEstimator(learning_rate=0.001)
+critic = ValueEstimator(learning_rate=0.1)
 
 # Add an op to initialize the variables.
 init_op = tf.global_variables_initializer()
@@ -474,8 +474,8 @@ with tf.Session() as sess:
     # Due to randomness in the policy, the number of episodes you need varies
     # TODO: Sometimes the algorithm gets stuck, I'm not sure what exactly is
     # happening there.
-    stats,funds_wealth_all_episodes,funds_return_all_ep,learnin_fund_stats = actor_critic(env, policy_estimator,
-                                                                      value_estimator,num_episodes=episodes,
+    stats,funds_wealth_all_episodes,funds_return_all_ep,learnin_fund_stats = actor_critic(env, actor,
+                                                                      critic,num_episodes=episodes,
                                                                       num_timesteps=timesteps, discount_factor=0.95)
     
 print("\nDuration: {} min".format((time.time() - start_time)/60))
