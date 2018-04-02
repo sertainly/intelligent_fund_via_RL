@@ -2,11 +2,22 @@
 # coding: utf-8
 
 """
-Relies on implementation by Denny Britz, which he used to solve the
-Continuous Mountain Car problem and can be found here:
+This is the heart of the model. Here, a new `LearningFund` class is introduced,
+which does not have a static demand function, but learns it via the
+actor-critic method.
+
+The code for the actor-critic learning mechanism is based on an implementation
+by Denny Britz, which he uses to solve the Continuous Mountain Car problem.
+It can be found here:
 https://github.com/dennybritz/reinforcement-learning/blob/master/PolicyGradient/Continuous%20MountainCar%20Actor%20Critic%20Solution.ipynb
 
-I make adjustments to his code to make it compatible with the  
+I make adjustments to his code to make it compatible with the model described
+by Thurner et al. 
+
+The environment now consists of the basic elements described by Thurner et al.,
+including 10 _normal_ `Funds` with static demand functions one
+additional `Learning Fund`.
+
 """
 
 import os
