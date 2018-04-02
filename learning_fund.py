@@ -2,7 +2,11 @@
 # coding: utf-8
 
 """
+Relies on implementation by Denny Britz, which he used to solve the
+Continuous Mountain Car problem and can be found here:
+https://github.com/dennybritz/reinforcement-learning/blob/master/PolicyGradient/Continuous%20MountainCar%20Actor%20Critic%20Solution.ipynb
 
+I make adjustments to his code to make it compatible with the  
 """
 
 import os
@@ -19,7 +23,6 @@ from sklearn.kernel_approximation import RBFSampler
 import time
 import datetime
 import argparse
-import matplotlib.pyplot as plt
 
 # In[2]:
 
@@ -108,7 +111,6 @@ for i in range(10000):
 
 
 # In[7]:
-
 
 # (By Denny Britz)
 # Feature Preprocessing: Normalize to zero mean and unit variance
@@ -334,7 +336,7 @@ def actor_critic(env, actor, critic, num_episodes,
         # Create our learning_fund
         learning_fund = LearningFund()
         
-        # Create the funds 
+        # Create the funds (DynamicFund class is described in thurner_model.py) 
         number_of_funds = 10
         funds = [DynamicFund((i+1)*5) for i in range(number_of_funds)]
         
@@ -455,10 +457,10 @@ env = Env()
 # first initialization of our learning fund
 learning_fund = LearningFund()
 
-##############################################################################
-# This works
+
 tf.reset_default_graph()
 
+# initialize the actor-critic classes
 actor = PolicyEstimator(learning_rate=0.001)
 critic = ValueEstimator(learning_rate=0.1)
 
@@ -492,49 +494,7 @@ with open(filename, 'wb') as f:
     pickle.dump([stats.episode_rewards, funds_wealth_all_episodes,funds_return_all_ep, learnin_fund_stats], f)
 
     
-print("\nSaved as %s" %filename)
+print("\nSaved statistics in %s" %filename)
 # Getting back the objects:
 #with open(filename, 'rb') as f:
 #    stats, funds_wealth_all_episodes, learnin_fund_stats = pickle.load(f)
-
-
-# In[16]:
-
-plt.title("Cumulative reward per episode")
-plt.plot(stats.episode_rewards);
-plt.savefig("./figures/{}_episoderewards.png".format(experiment_name))
-plt.close()
-
-# In[17]:
-
-
-# assumes 10 episodes
-fig, axes = plt.subplots(nrows=6, ncols=5, sharex=True, sharey=True,figsize=(40,20))
-
-for i, ax in enumerate(axes.flatten()):
-    ax.plot(funds_wealth_all_episodes[i])
-    ax.set_title("Episode {}".format(i+1), {'fontsize':20})
-    
-fig.suptitle("Total wealth per fund", fontsize=30, y=0.92)
-
-fig.savefig("./figures/{}.png".format(experiment_name));
-
-
-# In[18]:
-
-
-# assumes 10 episodes
-fig, axes = plt.subplots(nrows=6, ncols=5, sharex=True, sharey=True,figsize=(20,10))
-
-# define index of fund to plot (the last fund (-1) is our learning fund)
-fund_index = -1
-
-for i, ax in enumerate(axes.flatten()):
-    episode = np.array(funds_wealth_all_episodes[i])
-    ax.plot(episode.T[fund_index])
-    ax.set_title("Episode {}".format(i+1), {'fontsize':12})
-    
-fig.suptitle("Total wealth learning fund", fontsize=30);
-    
-fig.savefig("./figures/{}_learning.png".format(experiment_name))
-
