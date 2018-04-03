@@ -4,7 +4,8 @@ This repository contains the code used in the paper I wrote as contribution to a
 
 __Abstract:__
 
-We propose a novel approach to model the behavior of institutions in agent-based ﬁnancial systems. To achieve this, reinforcement learning techniques are used to continuously improve the demand decision of a fund during episodes of interaction with other agents in a simulated environment. It is shown that after training, the learning agent displays a sophisticated demand behavior. Also, it is not able to learn a dominant strategy. Lastly, the learning fund does not follow the The results indicate a potential for similar methods in the analysis of macroprudential stress scenarios.
+We propose a novel approach to model the behavior of institutions in agent-based financial systems. To achieve this, reinforcement learning techniques are used to continuously improve the demand decision of a fund during episodes of interaction with other agents in a simulated environment. It is shown that after training, the learning agent displays a sophisticated demand behavior. Also, it is not able to learn a dominant strategy. Lastly, the learning fund does not follow the dynamics of other, simpler agents, but displays more complex behavior.
+The results indicate a potential for similar methods in the analysis of macroprudential stress scenarios.
 
 ## Thurner Model
 
